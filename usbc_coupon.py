@@ -29,17 +29,19 @@ win = Box(FLOOR_KEEP + ns["USBC_T"] + 1, ns["USBC_W"] + 2*PAD_Y, 40,
 coupon = base_asm & win
 
 # export
+EXP = os.path.join(OUT, "exports")
+os.makedirs(EXP, exist_ok=True)
 def to_mesh(shape):
-    t = os.path.join(OUT, "_t.stl"); export_stl(shape, t); m = trimesh.load(t); os.remove(t); return m
+    t = os.path.join(EXP, "_t.stl"); export_stl(shape, t); m = trimesh.load(t); os.remove(t); return m
 m = to_mesh(coupon)
 b = m.bounds
 print(f"coupon bounds  x {b[0][0]:.2f}..{b[1][0]:.2f}  y {b[0][1]:.2f}..{b[1][1]:.2f}  z {b[0][2]:.2f}..{b[1][2]:.2f}")
 print(f"coupon size    {b[1][0]-b[0][0]:.1f} x {b[1][1]-b[0][1]:.1f} x {b[1][2]-b[0][2]:.1f} mm")
-export_stl(coupon, os.path.join(OUT, "usbc_coupon.stl"))
+export_stl(coupon, os.path.join(EXP, "usbc_coupon.stl"))
 
 # also a colored 3mf + glb for the viewer
 m.visual.face_colors = [170,120,210,255]
 sc = trimesh.Scene(); sc.add_geometry(m, node_name="usbc_coupon", geom_name="usbc_coupon")
-sc.export(os.path.join(OUT, "usbc_coupon.3mf"))
-sc.export(os.path.join(OUT, "usbc_coupon.glb"))
+sc.export(os.path.join(EXP, "usbc_coupon.3mf"))
+sc.export(os.path.join(EXP, "usbc_coupon.glb"))
 print("saved usbc_coupon.stl / .3mf / .glb")

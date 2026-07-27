@@ -7,12 +7,24 @@ display (ESP32-2432S028R "CYD"). Two printed parts that bolt together with 4 M3 
 
 | File | What | Print orientation |
 |------|------|-------------------|
-| `front_panel.stl` | Lid: LCD window, bevel, mic hole, 4 board standoffs, speaker-grille side | Flat, **screen-face down** |
-| `base.stl` | Closed tub: side walls, full back wall (USB-C mount), roof, 2 posts + 2 bosses | **Standing on its back wall** (roof/floor print as vertical walls, no support) |
+| `exports/front_panel.stl` | Lid: LCD window, bevel, mic hole, 4 board standoffs, speaker-grille side | Flat, **screen-face down** |
+| `exports/base.stl` | Closed tub: side walls, full back wall (USB-C mount), roof, 2 posts + 2 bosses | **Standing on its back wall** (roof/floor print as vertical walls, no support) |
 
-`base_plate.py` (build123d) generates everything. `base_plate.3mf` / `.glb` are the
-assembled model; open `viewer.html` (served over localhost) to inspect it in 3D.
-`usbc_coupon.py` carves a small test coupon of just the USB-C mount for fit checks.
+`base_plate.py` (build123d) generates everything into `exports/`. `base_plate.3mf` /
+`.glb` are the assembled model; open `viewer.html` (served over localhost) to inspect
+it in 3D. `usbc_coupon.py` carves a small test coupon of just the USB-C mount.
+
+### Layout
+
+```
+base_plate.py, usbc_coupon.py, viewer.html   CAD source + viewer
+README.md, CHANGELOG.md                        docs
+exports/    STL / 3MF / GLB (generated)
+images/     renders & diagrams
+photos/     real-world build photos
+_incoming/  unsorted uploads to be filed
+scratch/    local experiments (gitignored)
+```
 
 ## Key dimensions
 

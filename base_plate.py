@@ -218,20 +218,21 @@ base_asm = (parts["base"] + parts["post_L"] + parts["post_R"]
 out = {"front_panel": front_asm, "base": base_asm}
 
 # ── Export ────────────────────────────────────────────────────────────────────
-os.makedirs(OUT, exist_ok=True)
+EXP = os.path.join(OUT, "exports")
+os.makedirs(EXP, exist_ok=True)
 def to_mesh(shape):
-    t = os.path.join(OUT, "_t.stl"); export_stl(shape, t); m = trimesh.load(t); os.remove(t); return m
+    t = os.path.join(EXP, "_t.stl"); export_stl(shape, t); m = trimesh.load(t); os.remove(t); return m
 colors = {"front_panel":[150,150,150,255], "base":[170,120,210,255]}
 scene = trimesh.Scene()
 for n, shp in out.items():
     m = to_mesh(shp); m.visual.face_colors = colors[n]
     scene.add_geometry(m, node_name=n, geom_name=n)
-scene.export(os.path.join(OUT, "base_plate.3mf"))
-scene.export(os.path.join(OUT, "base_plate.glb"))
+scene.export(os.path.join(EXP, "base_plate.3mf"))
+scene.export(os.path.join(EXP, "base_plate.glb"))
 
 # ---- separate print-ready STL per part (each on its own plate) ----
-export_stl(front_flat, os.path.join(OUT, "front_panel.stl"))   # flat: screen-face down
-export_stl(base_asm,   os.path.join(OUT, "base.stl"))          # tub; print STANDING ON BACK WALL
+export_stl(front_flat, os.path.join(EXP, "front_panel.stl"))   # flat: screen-face down
+export_stl(base_asm,   os.path.join(EXP, "base.stl"))          # tub; print STANDING ON BACK WALL
 print("parts:", ", ".join(out))
 print("STL: front_panel.stl (flat) + base.stl (separate plates)")
 print(f"2 M3 screws at bottom corners y={BOLT_YS}, x={BOLT_X}")

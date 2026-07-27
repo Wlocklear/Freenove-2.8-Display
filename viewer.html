@@ -19,7 +19,7 @@ s.add(new THREE.AmbientLight(0xffffff,0.75));
 const d=new THREE.DirectionalLight(0xffffff,0.9);d.position.set(-1,-1,2);s.add(d);
 const d2=new THREE.DirectionalLight(0xffffff,0.4);d2.position.set(1,1,-1);s.add(d2);
 const c=new OrbitControls(cam,r.domElement);c.enableDamping=true;
-new GLTFLoader().load('base_plate.glb?'+Date.now(),g=>{
+new GLTFLoader().load('exports/base_plate.glb?'+Date.now(),g=>{
   const o=g.scene;
   const box=new THREE.Box3().setFromObject(o);const ctr=box.getCenter(new THREE.Vector3());const R=box.getSize(new THREE.Vector3()).length();
   o.position.sub(ctr);s.add(o);

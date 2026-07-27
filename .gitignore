@@ -1,3 +1,23 @@
+# Python
 __pycache__/
 *.pyc
+*.pyo
+.venv/
+venv/
+env/
+
+# Local experiments — never committed
+scratch/
+
+# OS cruft
+.DS_Store
+Thumbs.db
+
+# Editor
+.vscode/
+.idea/
+
+# Temp
+*.tmp
+*.bak
 _t.stl
