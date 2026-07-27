@@ -1,0 +1,30 @@
+<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>CYD stand viewer</title><style>html,body{margin:0;height:100%;background:#1b1d22;overflow:hidden;font-family:sans-serif}
+#legend{position:fixed;top:8px;left:10px;color:#cdd;font-size:13px;line-height:1.6}
+#legend b{display:inline-block;width:12px;height:12px;border-radius:2px;margin-right:6px;vertical-align:middle}
+#hint{position:fixed;bottom:8px;left:10px;color:#889;font-size:12px}</style></head>
+<body><div id="legend">
+<div><b style="background:#969696"></b>front_panel (standoffs fused in)</div>
+<div><b style="background:#aa78d2"></b>base (posts fused in)</div>
+<div>2 printable parts, bolt together with 2 M3 screws</div>
+</div>
+<div id="hint">drag rotate · scroll zoom · right-drag pan</div>
+<script type="importmap">{"imports":{"three":"https://unpkg.com/three@0.160.0/build/three.module.js","three/addons/":"https://unpkg.com/three@0.160.0/examples/jsm/"}}</script>
+<script type="module">
+import*as THREE from'three';import{OrbitControls}from'three/addons/controls/OrbitControls.js';import{GLTFLoader}from'three/addons/loaders/GLTFLoader.js';
+const s=new THREE.Scene();s.background=new THREE.Color(0x1b1d22);
+const cam=new THREE.PerspectiveCamera(45,innerWidth/innerHeight,0.1,5000);cam.up.set(0,0,1);
+const r=new THREE.WebGLRenderer({antialias:true});r.setSize(innerWidth,innerHeight);r.setPixelRatio(devicePixelRatio);document.body.appendChild(r.domElement);
+s.add(new THREE.AmbientLight(0xffffff,0.75));
+const d=new THREE.DirectionalLight(0xffffff,0.9);d.position.set(-1,-1,2);s.add(d);
+const d2=new THREE.DirectionalLight(0xffffff,0.4);d2.position.set(1,1,-1);s.add(d2);
+const c=new OrbitControls(cam,r.domElement);c.enableDamping=true;
+new GLTFLoader().load('base_plate.glb?'+Date.now(),g=>{
+  const o=g.scene;
+  const box=new THREE.Box3().setFromObject(o);const ctr=box.getCenter(new THREE.Vector3());const R=box.getSize(new THREE.Vector3()).length();
+  o.position.sub(ctr);s.add(o);
+  const D=R*1.15;cam.position.set(-D*0.5,-D*0.7,D*0.35);cam.lookAt(0,0,0);c.update();
+});
+addEventListener('resize',()=>{cam.aspect=innerWidth/innerHeight;cam.updateProjectionMatrix();r.setSize(innerWidth,innerHeight)});
+(function a(){requestAnimationFrame(a);c.update();r.render(s,cam)})();
+</script></body></html>
