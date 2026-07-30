@@ -159,6 +159,18 @@ _, _, H_TOP = foldpt(x_top, ym, PLATE_T)    # roof height = panel top (back face
 FB_X, _, _  = foldpt(x_bot, ym, PLATE_T)    # panel seat, front-bottom x
 PT_X, _, _  = foldpt(x_top, ym, PLATE_T)    # panel seat, top x
 
+# ---- trim the panel's top edge flush with the roof ----
+# The top cut is straight across the panel THICKNESS (local z), so once tilted the
+# screen-face corner (z=0) sits higher in world Z than the back-face corner (z=PLATE_T,
+# which sets H_TOP) by PLATE_T*|cos(ROT)|. Slice that wedge off so the whole top edge
+# lands level with the roof.
+def unfold(shp):
+    return shp.move(Location((-shift[0], -shift[1], -shift[2]))).rotate(hinge, -ROT)
+top_trim = Box(4000, 4000, 800, align=(Align.CENTER, Align.CENTER, Align.MIN)).move(Location((0, 0, H_TOP)))
+for n in ("front_panel", "standoff_FL", "standoff_FR", "standoff_BL", "standoff_BR"):
+    parts[n] = parts[n] - top_trim
+front_flat = front_flat - unfold(top_trim)
+
 # side walls: wedge profile in X-Z, extruded WALL_T in Y, one per side
 _side_prof = Plane.XZ * Polygon((FB_X, 0), (PT_X, H_TOP), (back_x, H_TOP), (back_x, 0), align=None)
 _side = extrude(_side_prof, amount=WALL_T)
