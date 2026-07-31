@@ -5,11 +5,11 @@ Print this small piece to test-fit the module before committing to the full base
 from build123d import *
 import trimesh, os
 
-OUT = r"C:\Users\wlock\GitHub\3D Prints\Freenove_ESP32S3_2.8_Display_Case"
+OUT = os.path.dirname(os.path.abspath(__file__))
 
 # Rebuild the base + usbc_mount exactly as the main script does, then keep only
 # a window around the USB-C mount (with a slab of floor extending inward).
-src = open(os.path.join(OUT, "base_plate.py")).read().split("# \u2500\u2500 Fuse into exactly TWO")[0]
+src = open(os.path.join(OUT, "case.py")).read().split("# \u2500\u2500 Fuse into exactly TWO")[0]
 ns = {}
 exec(src, ns)
 parts = ns["parts"]
@@ -19,7 +19,7 @@ base_asm = (parts["base"] + parts["post_L"] + parts["post_R"]
 
 # region: full wall (y 22.5..52.5, back edge x=52.45) + FLOOR_KEEP mm of floor inward
 usbc_x  = ns["panel_min_x"] + ns["BASE_LEN"]      # back edge x
-cy      = ns["PLATE_D"] / 2                        # 37.5
+cy      = ns["PANEL_D"] / 2                        # 37.5
 FLOOR_KEEP = 18.0                                  # how much floor to include, inward from the wall
 PAD_Y      = 4.0                                   # margin each side of the 30mm wall
 

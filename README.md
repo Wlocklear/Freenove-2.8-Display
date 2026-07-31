@@ -10,14 +10,14 @@ display (ESP32-2432S028R "CYD"). Two printed parts that bolt together with 4 M3 
 | `exports/front_panel.stl` | Lid: LCD window, bevel, mic hole, 4 board standoffs, speaker-grille side | Flat, **screen-face down** |
 | `exports/base.stl` | Closed tub: side walls, full back wall (USB-C mount), roof, 2 posts + 2 bosses | **Standing on its back wall** (roof/floor print as vertical walls, no support) |
 
-`base_plate.py` (build123d) generates everything into `exports/`. `base_plate.3mf` /
+`case.py` (build123d) generates everything into `exports/`. `case.3mf` /
 `.glb` are the assembled model; open `viewer.html` (served over localhost) to inspect
 it in 3D. `usbc_coupon.py` carves a small test coupon of just the USB-C mount.
 
 ### Layout
 
 ```
-base_plate.py, usbc_coupon.py, viewer.html   CAD source + viewer
+case.py, usbc_coupon.py, viewer.html         CAD source + viewer
 README.md, CHANGELOG.md                        docs
 exports/    STL / 3MF / GLB (generated)
 images/     renders & diagrams
@@ -40,9 +40,9 @@ scratch/    local experiments (gitignored)
 
 - Suggested: **3 perimeters**, 15% infill (part is wall-dominated; infill barely matters,
   extra perimeters strengthen the self-tapping screw bosses)
-- **`HOLE_COMP = 0.4`** in `base_plate.py` oversizes every screw/mount hole to counter this
+- **`HOLE_COMP = 0.4`** in `case.py` oversizes every screw/mount hole to counter this
   printer's ~0.4 mm hole shrinkage. If screws come out loose lower it; if tight, raise it.
-- Regenerate after any change: `python base_plate.py`
+- Regenerate after any change: `python case.py`
 
 ## Assembly
 

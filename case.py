@@ -2,7 +2,7 @@
 """
 Freenove ESP32-S3 2.8" (CYD) Display Case  --  v1.0
 TWO SEPARATE PARTS (print apart, bolt together).
-  front_panel : screen plate (LCD window, bevel, mic hole, 4 board standoffs) + speaker
+  front_panel : screen panel (LCD window, bevel, mic hole, 4 board standoffs) + speaker
                 grille footprint; 4 M3 clearance holes at the corners. Leans at TILT deg.
   base        : closed tub -- side walls + full back wall (USB-C mount) + roof; its front
                 edge follows the panel lean; 2 bottom posts + 2 top bosses (M3 self-tap).
@@ -14,7 +14,7 @@ from build123d import *
 import trimesh, os, math
 
 # ── Front panel (screen) ─────────────────────────────────────────────────────
-PLATE_W, PLATE_D, PLATE_T = 100.0, 87.0, 3.0   # width widened +6/side (75->87) for the speaker
+PANEL_W, PANEL_D, PANEL_T = 100.0, 87.0, 3.0   # width widened +6/side (75->87) for the speaker
 LCD_W, LCD_H, BEVEL = 60.0, 46.0, 0.6
 STANDOFF_H, STANDOFF_OD, STANDOFF_HOLE = 3.3, 6.0, 2.8
 SPACING_X, SPACING_Y = 78.0, 42.0
@@ -38,7 +38,7 @@ TILT = 60.0
 
 # ── Bottom-corner M3 connection (2 screws) ───────────────────────────────────
 BOTTOM_EXT = 5.0           # extra panel below the board so it clears the posts
-BOLT_YS  = (8.0, PLATE_D - 8.0)   # local y of the 2 corner screws (8mm from each edge, any width)
+BOLT_YS  = (8.0, PANEL_D - 8.0)   # local y of the 2 corner screws (8mm from each edge, any width)
 PANEL_CLR = 3.4            # M3 clearance in the panel (NOMINAL; HOLE_COMP added at cut)
 POST_OD   = 12.0           # base post diameter
 POST_PILOT = 2.5           # M3 self-tap pilot in the post (NOMINAL; HOLE_COMP added at cut)
@@ -49,23 +49,23 @@ POST_PILOT = 2.5           # M3 self-tap pilot in the post (NOMINAL; HOLE_COMP a
 HOLE_COMP = 0.4
 
 # ── USB-C panel mount, centered on the base's back edge ──────────────────────
-USBC_W, USBC_H, USBC_T = 30.0, 10.0, 3.0   # mount plate: wide(y), tall(z), thick(x)
+USBC_W, USBC_H, USBC_T = 30.0, 10.0, 3.0   # mount block: wide(y), tall(z), thick(x)
 USBC_CUT_W, USBC_CUT_H = 9.0, 3.0          # cutout for the connector shell
 USBC_HOLE_D  = 2.38                        # screw clearance holes (3/32")
 USBC_HOLE_DY = 7.5                         # hole center from cutout center (15mm apart)
 USBC_MOD_H   = 6.8                         # module height; it rests on the base top face
 
-OUT = r"C:\Users\wlock\GitHub\3D Prints\Freenove_ESP32S3_2.8_Display_Case"
+OUT = os.path.dirname(os.path.abspath(__file__))
 # ──────────────────────────────────────────────────────────────────────────────
-cx, cy = 0.0, PLATE_D/2
-x_top, x_bot = -PLATE_W/2, PLATE_W/2 + BOTTOM_EXT   # board stays centered; extra at bottom
+cx, cy = 0.0, PANEL_D/2
+x_top, x_bot = -PANEL_W/2, PANEL_W/2 + BOTTOM_EXT   # board stays centered; extra at bottom
 BOLT_X = x_bot - 5.0                                 # screws just up from the new bottom edge
 TOP_BOLT_X = x_top + 6.0                              # matching screws just below the top edge
 
-# ---- front panel (flat, local frame; screen face = z0, standoffs on z=PLATE_T) ----
-plate  = Box(x_bot - x_top, PLATE_D, PLATE_T, align=(Align.MIN, Align.MIN, Align.MIN)).move(Location((x_top, 0, 0)))
-window = Box(LCD_W, LCD_H, PLATE_T + 2, align=(Align.CENTER, Align.CENTER, Align.CENTER))
-front  = plate - window.move(Location((cx, cy, PLATE_T/2)))
+# ---- front panel (flat, local frame; screen face = z0, standoffs on z=PANEL_T) ----
+panel_box = Box(x_bot - x_top, PANEL_D, PANEL_T, align=(Align.MIN, Align.MIN, Align.MIN)).move(Location((x_top, 0, 0)))
+window = Box(LCD_W, LCD_H, PANEL_T + 2, align=(Align.CENTER, Align.CENTER, Align.CENTER))
+front  = panel_box - window.move(Location((cx, cy, PANEL_T/2)))
 if BEVEL > 0:
     z0 = front.edges().group_by(Axis.Z)[0]
     def _win(e):
@@ -75,20 +75,20 @@ if BEVEL > 0:
     front = chamfer(ShapeList([e for e in z0 if _win(e)]), BEVEL)
 for bx in (BOLT_X, TOP_BOLT_X):     # 4 M3 clearance holes: bottom + top corners
     for by in BOLT_YS:
-        front = front - Cylinder((PANEL_CLR+HOLE_COMP)/2, PLATE_T + 2, align=(Align.CENTER, Align.CENTER, Align.CENTER)
-                                 ).move(Location((bx, by, PLATE_T/2)))
+        front = front - Cylinder((PANEL_CLR+HOLE_COMP)/2, PANEL_T + 2, align=(Align.CENTER, Align.CENTER, Align.CENTER)
+                                 ).move(Location((bx, by, PANEL_T/2)))
 
 def standoff(x, y):
-    p = Cylinder(STANDOFF_OD/2, STANDOFF_H, align=(Align.CENTER, Align.CENTER, Align.MIN)).move(Location((x, y, PLATE_T)))
-    return p - Cylinder(STANDOFF_HOLE/2, STANDOFF_H + 1, align=(Align.CENTER, Align.CENTER, Align.MIN)).move(Location((x, y, PLATE_T)))
+    p = Cylinder(STANDOFF_OD/2, STANDOFF_H, align=(Align.CENTER, Align.CENTER, Align.MIN)).move(Location((x, y, PANEL_T)))
+    return p - Cylinder(STANDOFF_HOLE/2, STANDOFF_H + 1, align=(Align.CENTER, Align.CENTER, Align.MIN)).move(Location((x, y, PANEL_T)))
 board_cx = cx + BOARD_DROP                  # board center, dropped toward the panel bottom
 xL, xR = board_cx - SPACING_X/2, board_cx + SPACING_X/2
 yF, yB = cy - SPACING_Y/2, cy + SPACING_Y/2
 
 # ---- mic hole: MIC_DY screen-left of the top-right board mount (xL, yF), same height ----
 mic_x, mic_y = xL, yF + MIC_DY
-front = front - Cylinder(MIC_D/2, PLATE_T + 2, align=(Align.CENTER, Align.CENTER, Align.CENTER)
-                         ).move(Location((mic_x, mic_y, PLATE_T/2)))
+front = front - Cylinder(MIC_D/2, PANEL_T + 2, align=(Align.CENTER, Align.CENTER, Align.CENTER)
+                         ).move(Location((mic_x, mic_y, PANEL_T/2)))
 if MIC_CHAM > 0:        # funnel the z=0 (screen) face out to MIC_D + 2*MIC_CHAM
     front = front - Cone(MIC_D/2 + MIC_CHAM, MIC_D/2, MIC_CHAM,
                          align=(Align.CENTER, Align.CENTER, Align.MIN)
@@ -126,11 +126,11 @@ def fold(shp):
     return shp.rotate(hinge, ROT).move(Location(shift))
 panel_min_x = mn[0] + shift[0]        # world X of the panel's bottom edge
 
-# ---- base: flat plate behind the panel, front edge cut to the panel BACK face ----
+# ---- base: flat slab behind the panel, front edge cut to the panel BACK face ----
 BASE_LEN = 80.0
-base = Box(BASE_LEN, PLATE_D, PLATE_T, align=(Align.MIN, Align.MIN, Align.MIN)).move(Location((panel_min_x, 0, 0)))
+base = Box(BASE_LEN, PANEL_D, PANEL_T, align=(Align.MIN, Align.MIN, Align.MIN)).move(Location((panel_min_x, 0, 0)))
 # remove base material in FRONT of the panel back face -> base butts flush to the panel
-back_cut = fold(Box(3000, 3000, 3000, align=(Align.CENTER, Align.CENTER, Align.MAX)).move(Location((x_bot, cy, PLATE_T))))
+back_cut = fold(Box(3000, 3000, 3000, align=(Align.CENTER, Align.CENTER, Align.MAX)).move(Location((x_bot, cy, PANEL_T))))
 base = base - back_cut
 base = base - below
 parts["base"] = base
@@ -143,10 +143,10 @@ def foldpt(x, y, z):
     return (xr + shift[0], y + shift[1], zr + shift[2])
 
 for i, by in enumerate(BOLT_YS):
-    hx, hy, hz = foldpt(BOLT_X, by, PLATE_T)                 # panel back at the screw
+    hx, hy, hz = foldpt(BOLT_X, by, PANEL_T)                 # panel back at the screw
     post = Cylinder(POST_OD/2, hz + 3, align=(Align.CENTER, Align.CENTER, Align.MIN)).move(Location((hx, hy, 0)))
     post = post - back_cut                                   # top face flush with the panel back
-    pil  = fold(Cylinder((POST_PILOT+HOLE_COMP)/2, 40, align=(Align.CENTER, Align.CENTER, Align.MIN)).move(Location((BOLT_X, by, PLATE_T - 2))))
+    pil  = fold(Cylinder((POST_PILOT+HOLE_COMP)/2, 40, align=(Align.CENTER, Align.CENTER, Align.MIN)).move(Location((BOLT_X, by, PANEL_T - 2))))
     parts[f"post_{['L','R'][i]}"] = (post - pil) - below
 
 # ---- ENCLOSURE: close the base into a tub (sides + full back wall + roof) ----
@@ -154,15 +154,15 @@ for i, by in enumerate(BOLT_YS):
 # Print the tub STANDING ON ITS BACK WALL so the roof/floor print as vertical walls.
 WALL_T = 3.0
 back_x  = panel_min_x + BASE_LEN            # base back edge, x
-ym      = PLATE_D / 2                       # width center
-_, _, H_TOP = foldpt(x_top, ym, PLATE_T)    # roof height = panel top (back face)
-FB_X, _, _  = foldpt(x_bot, ym, PLATE_T)    # panel seat, front-bottom x
-PT_X, _, _  = foldpt(x_top, ym, PLATE_T)    # panel seat, top x
+ym      = PANEL_D / 2                       # width center
+_, _, H_TOP = foldpt(x_top, ym, PANEL_T)    # roof height = panel top (back face)
+FB_X, _, _  = foldpt(x_bot, ym, PANEL_T)    # panel seat, front-bottom x
+PT_X, _, _  = foldpt(x_top, ym, PANEL_T)    # panel seat, top x
 
 # ---- trim the panel's top edge flush with the roof ----
 # The top cut is straight across the panel THICKNESS (local z), so once tilted the
-# screen-face corner (z=0) sits higher in world Z than the back-face corner (z=PLATE_T,
-# which sets H_TOP) by PLATE_T*|cos(ROT)|. Slice that wedge off so the whole top edge
+# screen-face corner (z=0) sits higher in world Z than the back-face corner (z=PANEL_T,
+# which sets H_TOP) by PANEL_T*|cos(ROT)|. Slice that wedge off so the whole top edge
 # lands level with the roof.
 def unfold(shp):
     return shp.move(Location((-shift[0], -shift[1], -shift[2]))).rotate(hinge, -ROT)
@@ -176,12 +176,12 @@ _side_prof = Plane.XZ * Polygon((FB_X, 0), (PT_X, H_TOP), (back_x, H_TOP), (back
 _side = extrude(_side_prof, amount=WALL_T)
 _b = _side.bounding_box()
 parts["wall_L"] = _side.moved(Location((0, -_b.min.Y, 0))) - below       # Y=0 = screen-RIGHT
-parts["wall_R"] = _side.moved(Location((0, PLATE_D - WALL_T - _b.min.Y, 0))) - below
+parts["wall_R"] = _side.moved(Location((0, PANEL_D - WALL_T - _b.min.Y, 0))) - below
 
 # speaker grille in the RIGHT wall (wall_L, Y=0): slots over the folded cone-face patch
 _spk_xb = x_bot - SPK_FROM_BOTTOM            # speaker bottom edge (local x)
 _spk_xt = _spk_xb - SPK_H                    # speaker top edge (local x)
-_spk_zc = PLATE_T + SPK_DEPTH/2              # cone-face depth center (local z)
+_spk_zc = PANEL_T + SPK_DEPTH/2              # cone-face depth center (local z)
 _slot_len = SPK_DEPTH - 2*SPK_SLOT_INSET
 _n = int(SPK_H // SPK_SLOT_PITCH)
 _used = (_n - 1)*SPK_SLOT_PITCH
@@ -193,8 +193,8 @@ for _i in range(_n):
     parts["wall_L"] = parts["wall_L"] - _cut
 
 # full-height back wall carrying the USB-C cutout + screw holes (replaces the old narrow wall)
-usbc_cz = PLATE_T + USBC_MOD_H/2            # connector centerline (module rests on floor)
-back = Box(WALL_T, PLATE_D, H_TOP, align=(Align.MAX, Align.MIN, Align.MIN)).move(Location((back_x, 0, 0)))
+usbc_cz = PANEL_T + USBC_MOD_H/2            # connector centerline (module rests on floor)
+back = Box(WALL_T, PANEL_D, H_TOP, align=(Align.MAX, Align.MIN, Align.MIN)).move(Location((back_x, 0, 0)))
 back = back - Box(WALL_T + 2, USBC_CUT_W, USBC_CUT_H, align=(Align.CENTER, Align.CENTER, Align.CENTER)
                   ).move(Location((back_x - WALL_T/2, ym, usbc_cz)))
 for dy in (-USBC_HOLE_DY, USBC_HOLE_DY):
@@ -204,7 +204,7 @@ for dy in (-USBC_HOLE_DY, USBC_HOLE_DY):
 parts["wall_back"] = back - below
 
 # roof: slab from the panel top back to the back wall top
-parts["roof"] = Box(back_x - PT_X, PLATE_D, WALL_T, align=(Align.MIN, Align.MIN, Align.MAX)
+parts["roof"] = Box(back_x - PT_X, PANEL_D, WALL_T, align=(Align.MIN, Align.MIN, Align.MAX)
                     ).move(Location((PT_X, 0, H_TOP))) - below
 
 # ---- top-corner bosses: the panel's 2 top screws thread into these (mirrors bottom posts) ----
@@ -213,11 +213,11 @@ parts["roof"] = Box(back_x - PT_X, PLATE_D, WALL_T, align=(Align.MIN, Align.MIN,
 TOP_BOSS_HW  = 4.0     # boss half-width (local x) and reach toward the wall
 TOP_BOSS_DEP = 9.0     # how far the boss stands off the panel back into the enclosure
 for i, by in enumerate(BOLT_YS):
-    y0, y1 = (0.0, by + TOP_BOSS_HW) if i == 0 else (by - TOP_BOSS_HW, PLATE_D)   # reach to the near wall
+    y0, y1 = (0.0, by + TOP_BOSS_HW) if i == 0 else (by - TOP_BOSS_HW, PANEL_D)   # reach to the near wall
     boss = Box(2*TOP_BOSS_HW, y1 - y0, TOP_BOSS_DEP, align=(Align.CENTER, Align.MIN, Align.MIN)
-               ).move(Location((TOP_BOLT_X, y0, PLATE_T)))
+               ).move(Location((TOP_BOLT_X, y0, PANEL_T)))
     boss = boss - Cylinder((POST_PILOT+HOLE_COMP)/2, TOP_BOSS_DEP + 2, align=(Align.CENTER, Align.CENTER, Align.MIN)
-                           ).move(Location((TOP_BOLT_X, by, PLATE_T - 1)))     # self-tap pilot
+                           ).move(Location((TOP_BOLT_X, by, PANEL_T - 1)))     # self-tap pilot
     parts[f"topboss_{['L','R'][i]}"] = fold(boss) - below
 
 # ── Fuse into exactly TWO printable parts ─────────────────────────────────────
@@ -239,13 +239,13 @@ scene = trimesh.Scene()
 for n, shp in out.items():
     m = to_mesh(shp); m.visual.face_colors = colors[n]
     scene.add_geometry(m, node_name=n, geom_name=n)
-scene.export(os.path.join(EXP, "base_plate.3mf"))
-scene.export(os.path.join(EXP, "base_plate.glb"))
+scene.export(os.path.join(EXP, "case.3mf"))
+scene.export(os.path.join(EXP, "case.glb"))
 
-# ---- separate print-ready STL per part (each on its own plate) ----
+# ---- separate print-ready STL per part (each printed separately) ----
 export_stl(front_flat, os.path.join(EXP, "front_panel.stl"))   # flat: screen-face down
 export_stl(base_asm,   os.path.join(EXP, "base.stl"))          # tub; print STANDING ON BACK WALL
 print("parts:", ", ".join(out))
-print("STL: front_panel.stl (flat) + base.stl (separate plates)")
+print("STL: front_panel.stl (flat) + base.stl (printed separately)")
 print(f"2 M3 screws at bottom corners y={BOLT_YS}, x={BOLT_X}")
-print("Saved base_plate.3mf + base_plate.glb")
+print("Saved case.3mf + case.glb")
