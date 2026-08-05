@@ -8,18 +8,24 @@ display (ESP32-2432S028R "CYD"). Two printed parts that bolt together with 4 M3 
 | File | What | Print orientation |
 |------|------|-------------------|
 | `exports/front_panel.stl` | Lid: LCD window, bevel, mic hole, 4 board standoffs, speaker-grille side | Flat, **screen-face down** |
-| `exports/base.stl` | Closed tub: side walls, full back wall (USB-C mount), roof, 2 posts + 2 bosses | **Standing on its back wall** (roof/floor print as vertical walls, no support) |
+| `exports/base.stl` | Closed tub: side walls (USB-C mount on the left, speaker mount on the right), full back wall, roof, 2 posts + 2 bosses | **Standing on its back wall** (roof/floor print as vertical walls, no support) |
 
-`case.py` (build123d) generates everything into `exports/`. `case.3mf` /
+`case.py` (build123d) generates the real, printable parts into `exports/`. `case.3mf` /
 `.glb` are the assembled model; open `viewer.html` (served over localhost) to inspect
-it in 3D. `usbc_coupon.py` carves a small test coupon of just the USB-C mount.
+it in 3D. Any *test/validation coupon* -- a small carved-out piece printed to check a
+fit before committing to a full part -- exports into `exports/coupons/` instead, never
+the `exports/` root. `usbc_coupon.py` carves a small test coupon of just the USB-C
+mount; `speaker_coupon.py` carves a small test plaque of the speaker retention mount
+(ledge + clips + grille).
 
 ### Layout
 
 ```
-case.py, usbc_coupon.py, viewer.html         CAD source + viewer
+case.py, *_coupon.py, viewer.html            CAD source + viewer
 README.md, CHANGELOG.md                        docs
-exports/    STL / 3MF / GLB (generated)
+exports/           real, printable parts (STL / 3MF / GLB, generated)
+exports/coupons/    test/validation coupons only (generated) -- standard convention,
+                    keep small fit-test pieces out of the exports/ root
 images/     renders & diagrams
 photos/     real-world build photos
 _incoming/  unsorted uploads to be filed
@@ -31,9 +37,10 @@ scratch/    local experiments (gitignored)
 - Panel **105 tall × 87 wide × 3 thick**, LCD window **60 × 46**, tilt **60°** from horizontal
 - Board on 4 standoffs (Ø6, 78 × 42 pattern), dropped 3 mm to center the active area
 - **Mic** hole Ø2 (chamfered) 6 mm from the top-right mount
-- **Speaker** (40.4 × 28.1 × 10): thin side taped to the panel back, cone fires out an
-  11-slot grille in the **right** side wall
-- **USB-C** panel-mount in the back wall: 9 × 3 cutout, 2 holes 15 mm apart
+- **Speaker** (40.3 × 28.3 × 9.8): sits flush against the **right** side wall over an
+  11-slot grille, held by a bottom ledge (shelf + lip) and 2 corner snap clips at the top
+- **USB-C** panel-mount on the **left** side wall (wall_R), centered on the wall: 9 × 3
+  cutout, 2 holes 15 mm apart
 - Assembly: **4 × M3** from the front (2 bottom posts + 2 top bosses), self-tapping
 
 ## Printing notes
@@ -46,7 +53,8 @@ scratch/    local experiments (gitignored)
 
 ## Assembly
 
-1. Tape the speaker to the panel back (right side), cone toward the side-wall grille.
+1. Slide the speaker onto the base's ledge (right side wall) and press the top edge
+   past the 2 corner clips until it snaps in, over the grille.
 2. Mount the CYD board on the 4 standoffs.
-3. Fit the USB-C panel-mount into the back wall (2 screws).
+3. Fit the USB-C panel-mount into the left side wall (2 screws).
 4. Seat the panel onto the tub and drive the 4 M3 corner screws from the front.

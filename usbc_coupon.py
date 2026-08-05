@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""USB-C fitment coupon: the USB-C wall + a patch of the base floor around it,
+"""USB-C fitment coupon: a patch of wall_R (the LEFT wall) around the USB-C mount,
 carved from the real base geometry so it matches the actual mount 1:1.
 Print this small piece to test-fit the module before committing to the full base."""
 from build123d import *
@@ -8,28 +8,27 @@ import trimesh, os
 OUT = os.path.dirname(os.path.abspath(__file__))
 
 # Rebuild the base + usbc_mount exactly as the main script does, then keep only
-# a window around the USB-C mount (with a slab of floor extending inward).
+# a window around the USB-C mount.
 src = open(os.path.join(OUT, "case.py")).read().split("# \u2500\u2500 Fuse into exactly TWO")[0]
-ns = {}
+ns = {"__file__": os.path.join(OUT, "case.py")}
 exec(src, ns)
 parts = ns["parts"]
-# USB-C now lives in the full back wall (enclosure); carve the coupon from that
+# USB-C now lives on wall_R (screen-left); carve the coupon from that
 base_asm = (parts["base"] + parts["post_L"] + parts["post_R"]
             + parts["wall_L"] + parts["wall_R"] + parts["wall_back"] + parts["roof"])
 
-# region: full wall (y 22.5..52.5, back edge x=52.45) + FLOOR_KEEP mm of floor inward
-usbc_x  = ns["panel_min_x"] + ns["BASE_LEN"]      # back edge x
-cy      = ns["PANEL_D"] / 2                        # 37.5
-FLOOR_KEEP = 18.0                                  # how much floor to include, inward from the wall
-PAD_Y      = 4.0                                   # margin each side of the 30mm wall
+# region: a patch of wall_R around the cutout + both screw holes, plus margin
+usbc_cx, usbc_cz = ns["usbc_cx"], ns["usbc_cz"]
+PANEL_D, WALL_T = ns["PANEL_D"], ns["WALL_T"]
+PAD = 6.0
 
-win = Box(FLOOR_KEEP + ns["USBC_T"] + 1, ns["USBC_W"] + 2*PAD_Y, 40,
-          align=(Align.MAX, Align.CENTER, Align.MIN)
-          ).move(Location((usbc_x + 0.5, cy, -1)))
+win = Box(ns["USBC_HOLE_DY"]*2 + 2*PAD, WALL_T + 4, ns["USBC_CUT_H"] + 2*PAD,
+          align=(Align.CENTER, Align.CENTER, Align.CENTER)
+         ).move(Location((usbc_cx, PANEL_D - WALL_T/2, usbc_cz)))
 coupon = base_asm & win
 
 # export
-EXP = os.path.join(OUT, "exports")
+EXP = os.path.join(OUT, "exports", "coupons")   # coupons/test pieces live here, not exports/ root
 os.makedirs(EXP, exist_ok=True)
 def to_mesh(shape):
     t = os.path.join(EXP, "_t.stl"); export_stl(shape, t); m = trimesh.load(t); os.remove(t); return m

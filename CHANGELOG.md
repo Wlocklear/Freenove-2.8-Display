@@ -4,7 +4,7 @@ All notable changes to this enclosure are recorded here.
 Format loosely follows [Keep a Changelog](https://keepachangelog.com/);
 versions use [Semantic Versioning](https://semver.org/) (MAJOR.MINOR.PATCH).
 
-## [1.0.0] — 2026-07-27
+## [1.0.0] — 2026-08-03
 
 First validated release. Two-part bolt-together enclosure for the Freenove
 ESP32-S3 2.8" (CYD) display.
@@ -18,11 +18,15 @@ ESP32-S3 2.8" (CYD) display.
   Prints standing on its back wall (no support).
 - **4-corner M3 mounting** — 2 bottom posts + 2 top bosses, self-tapping, driven
   from the front; verified collinear with the panel holes at the 60° angle.
-- **Speaker grille** — 11 slots in the right side wall over the folded cone-face
-  patch; speaker taped to the panel back, cone firing out the wall.
+- **Speaker mount** — 11-slot grille in the right side wall; speaker held over
+  the grille by a bottom ledge + 2 corner snap clips.
 - **`HOLE_COMP = 0.4`** — per-printer shrinkage compensation on every screw/mount
   hole so printed sizes match nominal (M3 clearance, self-tap pilots, 3/32" USB-C).
-- `usbc_coupon.py` — carves a small USB-C fit-test coupon from the real geometry.
+- **Fit-test coupons** (`exports/coupons/`) — `usbc_coupon.py` and
+  `speaker_coupon.py` carve small printable test pieces from the real geometry
+  to validate each fit before a full print.
 
 ### Notes
-- Mic hole and speaker slots do not yet carry `HOLE_COMP`; they will print ~0.4 under.
+- Snap-fit features budget ~0.2–0.4 mm for FDM peg swell / pocket shrink:
+  pocket-entering nubs keep ≥0.4 mm side clearance and ~0.5 mm engagement reach.
+- Mic hole and speaker slots do not carry `HOLE_COMP`; they print ~0.4 under.

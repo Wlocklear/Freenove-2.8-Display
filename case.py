@@ -4,8 +4,10 @@ Freenove ESP32-S3 2.8" (CYD) Display Case  --  v1.0
 TWO SEPARATE PARTS (print apart, bolt together).
   front_panel : screen panel (LCD window, bevel, mic hole, 4 board standoffs) + speaker
                 grille footprint; 4 M3 clearance holes at the corners. Leans at TILT deg.
-  base        : closed tub -- side walls + full back wall (USB-C mount) + roof; its front
-                edge follows the panel lean; 2 bottom posts + 2 top bosses (M3 self-tap).
+  base        : closed tub -- side walls + full back wall + roof; its front edge follows
+                the panel lean; 2 bottom posts + 2 top bosses (M3 self-tap); speaker
+                retention mount (ledge + 2 corner clips) on wall_L, over the grille;
+                USB-C panel mount on wall_R (screen-LEFT), centered on the wall.
 Assembly: 4 M3 screws from the FRONT (panel corners) into the base posts/bosses.
 Print: front_panel flat (screen down); base STANDING ON ITS BACK WALL (no support).
 Hole sizes carry a per-printer shrinkage comp (HOLE_COMP).
@@ -34,6 +36,19 @@ SPK_SLOT_W     = 1.6       # grille slot width (along the panel length)
 SPK_SLOT_PITCH = 3.6       # slot spacing
 SPK_SLOT_INSET = 4.0       # inset of slot length within the 28.1 depth
 
+# ── Speaker retention mount (on wall_L, over the grille) ─────────────────────
+# Real speaker, as measured off the kit: 40.3 x 28.3 x 9.8mm -- NOT square. It mounts
+# flush against wall_L's inner face, level with the grille, held by a bottom ledge
+# (shelf + lip) and 2 corner snap clips at the top (split to clear the speaker's wire,
+# which exits the middle). Validated as speaker_coupon.py before folding in here.
+SPK_MNT_W, SPK_MNT_THK = 28.3, 9.8   # speaker width x thickness (SPK_H above is its length)
+SPK_MNT_CLR      = 1.3                 # fit clearance around the speaker
+SPK_MNT_PZ_SHIFT = 4.0                   # local-z sits on the panel's seat seam at 0 -- clear it
+SPK_LEDGE_T, SPK_LIP_H, SPK_LIP_REACH = 3.5, 1.5, 1.5   # bottom ledge: thickness, lip height/reach
+SPK_CLIP_W, SPK_CLIP_MARGIN = 8.0, 3.0                    # top clips: width, inset from corners
+SPK_CLIP_POST, SPK_CLIP_REACH = 1.6, 2.0                    # top clips: flex post, lip reach
+SPK_CLIP_LIP_H, SPK_CLIP_CHAM = 1.6, 0.8                      # top clips: lip height, lead-in chamfer
+
 TILT = 60.0
 
 # ── Bottom-corner M3 connection (2 screws) ───────────────────────────────────
@@ -48,7 +63,7 @@ POST_PILOT = 2.5           # M3 self-tap pilot in the post (NOMINAL; HOLE_COMP a
 # if screws end up loose, lower it; if still tight, raise it.
 HOLE_COMP = 0.4
 
-# ── USB-C panel mount, centered on the base's back edge ──────────────────────
+# ── USB-C panel mount, centered on the LEFT wall (wall_R, screen-left) ────────
 USBC_W, USBC_H, USBC_T = 30.0, 10.0, 3.0   # mount block: wide(y), tall(z), thick(x)
 USBC_CUT_W, USBC_CUT_H = 9.0, 3.0          # cutout for the connector shell
 USBC_HOLE_D  = 2.38                        # screw clearance holes (3/32")
@@ -127,7 +142,7 @@ def fold(shp):
 panel_min_x = mn[0] + shift[0]        # world X of the panel's bottom edge
 
 # ---- base: flat slab behind the panel, front edge cut to the panel BACK face ----
-BASE_LEN = 80.0
+BASE_LEN = 79.5
 base = Box(BASE_LEN, PANEL_D, PANEL_T, align=(Align.MIN, Align.MIN, Align.MIN)).move(Location((panel_min_x, 0, 0)))
 # remove base material in FRONT of the panel back face -> base butts flush to the panel
 back_cut = fold(Box(3000, 3000, 3000, align=(Align.CENTER, Align.CENTER, Align.MAX)).move(Location((x_bot, cy, PANEL_T))))
@@ -192,16 +207,57 @@ for _i in range(_n):
                     ).move(Location((_sx, WALL_T/2, _spk_zc))))
     parts["wall_L"] = parts["wall_L"] - _cut
 
-# full-height back wall carrying the USB-C cutout + screw holes (replaces the old narrow wall)
-usbc_cz = PANEL_T + USBC_MOD_H/2            # connector centerline (module rests on floor)
+# speaker retention mount: bottom ledge + 2 corner snap clips, fused onto wall_L, holding
+# the real speaker flush over the grille above (built in the panel-local frame, then folded
+# into place exactly like the grille slots -- guaranteed to land on solid wall material).
+_mnt_z0 = PANEL_T + SPK_MNT_PZ_SHIFT           # off the panel-seat seam at local z=PANEL_T
+_mnt_z1 = _mnt_z0 + SPK_MNT_W
+_mnt_y0 = WALL_T                                # wall's inner (interior-facing) face
+# NOTE: Box(x_extent, y_extent, z_extent).move(Location((x, y, z))) in the panel-local frame,
+# matching the grille-slot cut boxes above -- x=length(up/down slope), y=wall-normal, z=width.
+_shelf = Box(SPK_LEDGE_T + 0.3, SPK_MNT_THK + SPK_MNT_CLR, _mnt_z1 - _mnt_z0,
+             align=(Align.MIN, Align.MIN, Align.MIN)).move(Location((_spk_xb, _mnt_y0, _mnt_z0)))
+_ledgelip = Box(SPK_LIP_H, SPK_LIP_REACH, _mnt_z1 - _mnt_z0, align=(Align.MIN, Align.MIN, Align.MIN)
+               ).move(Location((_spk_xb - SPK_LIP_H, _mnt_y0 + SPK_MNT_THK + SPK_MNT_CLR - SPK_LIP_REACH, _mnt_z0)))
+_mount = _shelf + _ledgelip
+
+def _spk_top_clip(cz0, cz1):
+    _post = Box(SPK_CLIP_POST, (SPK_MNT_THK + SPK_MNT_CLR) + 0.6, cz1 - cz0,
+                align=(Align.MIN, Align.MIN, Align.MIN)
+               ).move(Location((_spk_xt - SPK_CLIP_POST, _mnt_y0 - 0.3, cz0)))
+    _tlip = Box(SPK_CLIP_POST + SPK_CLIP_REACH, SPK_CLIP_LIP_H, cz1 - cz0,
+                align=(Align.MIN, Align.MIN, Align.MIN)
+               ).move(Location((_spk_xt - SPK_CLIP_POST, _mnt_y0 + SPK_MNT_THK + SPK_MNT_CLR, cz0)))
+    _tab = _post + _tlip
+    _lead_x = _spk_xt + SPK_CLIP_REACH
+    _lead = ShapeList([e for e in _tab.edges()
+                        if abs(e.center().Y - (_mnt_y0 + SPK_MNT_THK + SPK_MNT_CLR)) < 1e-3
+                        and abs(e.center().X - _lead_x) < 1e-3])
+    return chamfer(_lead, SPK_CLIP_CHAM) if _lead else _tab
+
+_mount = (_mount + _spk_top_clip(_mnt_z0 + SPK_CLIP_MARGIN, _mnt_z0 + SPK_CLIP_MARGIN + SPK_CLIP_W)
+                 + _spk_top_clip(_mnt_z1 - SPK_CLIP_MARGIN - SPK_CLIP_W, _mnt_z1 - SPK_CLIP_MARGIN))
+parts["wall_L"] = parts["wall_L"] + fold(_mount)
+
+# full-height back wall -- plain, the USB-C mount lives on the LEFT wall instead (below).
 back = Box(WALL_T, PANEL_D, H_TOP, align=(Align.MAX, Align.MIN, Align.MIN)).move(Location((back_x, 0, 0)))
-back = back - Box(WALL_T + 2, USBC_CUT_W, USBC_CUT_H, align=(Align.CENTER, Align.CENTER, Align.CENTER)
-                  ).move(Location((back_x - WALL_T/2, ym, usbc_cz)))
-for dy in (-USBC_HOLE_DY, USBC_HOLE_DY):
-    back = back - Cylinder((USBC_HOLE_D+HOLE_COMP)/2, WALL_T + 2, rotation=(0, 90, 0),
-                           align=(Align.CENTER, Align.CENTER, Align.CENTER)
-                           ).move(Location((back_x - WALL_T/2, ym + dy, usbc_cz)))
 parts["wall_back"] = back - below
+
+# USB-C panel mount, on wall_R (screen-LEFT). Height stays at the original back-wall
+# reference (near the floor, module rests on the base top face), just nudged up 1mm --
+# NOT re-centered vertically on the wall. Horizontally: 10mm front of the wall's X
+# center (toward the screen) -- still clear of the sloped front edge at this low height
+# (edge sits at ~-20.7 there; the cutout+holes' footprint reaches only ~-5.3).
+usbc_cz = PANEL_T + USBC_MOD_H/2 + 1.0
+usbc_cx = (FB_X + back_x) / 2 - 10.0
+_usbc_y = PANEL_D - WALL_T / 2            # wall_R's mid-thickness
+parts["wall_R"] = parts["wall_R"] - Box(USBC_CUT_W, WALL_T + 2, USBC_CUT_H,
+                                         align=(Align.CENTER, Align.CENTER, Align.CENTER)
+                                        ).move(Location((usbc_cx, _usbc_y, usbc_cz)))
+for dx in (-USBC_HOLE_DY, USBC_HOLE_DY):
+    parts["wall_R"] = parts["wall_R"] - Cylinder((USBC_HOLE_D+HOLE_COMP)/2, WALL_T + 2, rotation=(90, 0, 0),
+                                                  align=(Align.CENTER, Align.CENTER, Align.CENTER)
+                                                 ).move(Location((usbc_cx + dx, _usbc_y, usbc_cz)))
 
 # roof: slab from the panel top back to the back wall top
 parts["roof"] = Box(back_x - PT_X, PANEL_D, WALL_T, align=(Align.MIN, Align.MIN, Align.MAX)
