@@ -4,7 +4,7 @@ All notable changes to this enclosure are recorded here.
 Format loosely follows [Keep a Changelog](https://keepachangelog.com/);
 versions use [Semantic Versioning](https://semver.org/) (MAJOR.MINOR.PATCH).
 
-## [1.0.0] — 2026-08-03
+## [1.0.0] — 2026-08-05
 
 First validated release. Two-part bolt-together enclosure for the Freenove
 ESP32-S3 2.8" (CYD) display.
@@ -22,9 +22,11 @@ ESP32-S3 2.8" (CYD) display.
   the grille by a bottom ledge + 2 corner snap clips.
 - **`HOLE_COMP = 0.4`** — per-printer shrinkage compensation on every screw/mount
   hole so printed sizes match nominal (M3 clearance, self-tap pilots, 3/32" USB-C).
-- **Fit-test coupons** (`exports/coupons/`) — `usbc_coupon.py` and
-  `speaker_coupon.py` carve small printable test pieces from the real geometry
-  to validate each fit before a full print.
+- **Fit-test coupons** (`exports/coupons/`) — `usbc_coupon.py`,
+  `speaker_coupon.py`, and `display_coupon.py` carve small printable test
+  pieces from the real geometry to validate each fit before a full print.
+  `display_coupon.py` covers the front-panel patch around the 4 board
+  standoffs, LCD window, and mic hole.
 
 ### Notes
 - Snap-fit features budget ~0.2–0.4 mm for FDM peg swell / pocket shrink:

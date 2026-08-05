@@ -16,7 +16,8 @@ it in 3D. Any *test/validation coupon* -- a small carved-out piece printed to ch
 fit before committing to a full part -- exports into `exports/coupons/` instead, never
 the `exports/` root. `usbc_coupon.py` carves a small test coupon of just the USB-C
 mount; `speaker_coupon.py` carves a small test plaque of the speaker retention mount
-(ledge + clips + grille).
+(ledge + clips + grille); `display_coupon.py` carves the front-panel patch around the
+4 board standoffs + LCD window + mic hole to test the board mount.
 
 ### Layout
 
